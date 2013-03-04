@@ -24,7 +24,7 @@ int lastPos[2];
 float cameraPos[4] = {0,0,4,1};
 Vec3f up, pan;
 int windowWidth = 640, windowHeight = 480;
-bool showSurface = true, showAxes = true, showCurvature = false, showNormals = false;
+bool showSurface = true, showAxes = true, showCurvature = false, showNormals = false, showEdges = false;
 
 float specular[] = { 1.0, 1.0, 1.0, 1.0 };
 float shininess[] = { 50.0 };
@@ -83,7 +83,22 @@ void renderMesh() {
 			glVertex3f(target[0],target[1],target[2]);
 		}
 	glEnd();
-	
+    
+    if(showEdges) {
+        glBegin(GL_LINES);
+        glColor3f(0,0,0);
+        glLineWidth(2.0f);
+        for (Mesh::ConstEdgeIter it = mesh.edges_begin(); it != mesh.edges_end(); ++it) {
+            Mesh::HalfedgeHandle h0 = mesh.halfedge_handle(it,0);
+            Mesh::HalfedgeHandle h1 = mesh.halfedge_handle(it,1);
+            Vec3f source(mesh.point(mesh.from_vertex_handle(h0)));
+            Vec3f target(mesh.point(mesh.from_vertex_handle(h1)));
+            glVertex3f(source[0],source[1],source[2]);
+            glVertex3f(target[0],target[1],target[2]);
+        }
+        glEnd();
+	}
+        
 	if (showCurvature) {
 		// WRITE CODE HERE TO RENDER THE PRINCIPAL DIRECTIONS YOU COMPUTED ---------------------------------------------
         glBegin(GL_LINES);
@@ -217,6 +232,7 @@ void keyboard(unsigned char key, int x, int y) {
 	else if (key == 'a' || key == 'A') showAxes = !showAxes;
 	else if (key == 'c' || key == 'C') showCurvature = !showCurvature;
 	else if (key == 'n' || key == 'N') showNormals = !showNormals;
+    else if (key == 'e' || key == 'E') showEdges = !showEdges;
 	else if (key == 'w' || key == 'W') writeImage(mesh, windowWidth, windowHeight, "renderedImage.svg", actualCamPos);
 	else if (key == 'q' || key == 'Q') exit(0);
 	glutPostRedisplay();
@@ -252,7 +268,7 @@ int main(int argc, char** argv) {
 	cout << '\t' << mesh.n_edges() << " edges.\n";
 	cout << '\t' << mesh.n_faces() << " faces.\n";
 	
-	//simplify(mesh,.5f);
+	simplify(mesh,.1f);
 	
 	mesh.update_normals();
 	

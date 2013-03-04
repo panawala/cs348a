@@ -5,6 +5,7 @@
 #include <Eigen/Core>
 using namespace OpenMesh;
 using namespace Eigen;
+using namespace std;
 
 VPropHandleT<Quadricd> vquadric;
 VPropHandleT<float> vprio;
@@ -155,6 +156,7 @@ is_collapse_legal(Mesh &mesh,Mesh::HalfedgeHandle _hh)
     
     return true;
 }
+
 float priority(Mesh &mesh, Mesh::HalfedgeHandle _heh) {
 	// INSERT CODE HERE FOR PART 2---------------------------------------------------------------------------------
 	// return priority: the smaller the better
@@ -168,8 +170,7 @@ float priority(Mesh &mesh, Mesh::HalfedgeHandle _heh) {
     Q += quadric(mesh,endVH);
     
     Vec3f endPoint = mesh.point(endVH);
-//    Vec3f startPoint = mesh.point(startVH);
-            
+
     float error = Q(endPoint);
     
     return error;
@@ -229,6 +230,27 @@ void decimate(Mesh &mesh, unsigned int _n_vertices) {
 	//   2) collapse this halfedge
 	//   3) update queue
 	// --------------------------------------------------------------------------------------------------------------
+    
+    while (nv > _n_vertices) {
+        //iterate to find the "best" collapsable halfedge
+        for (std::set<Mesh::VertexHandle, VertexCmp>::iterator queueIt = queue.begin(); queueIt != queue.end(); ++queueIt) {
+            from = *queueIt;
+            hh = target(mesh, from);
+            
+            if (is_collapse_legal(mesh,hh)) {
+                break;
+            }
+        }
+        
+        //once we find it, we collapse it and update the queue
+        mesh.collapse(hh);
+        to = mesh.to_vertex_handle(hh);
+        for (vv_it = mesh.vv_iter(to); vv_it; ++vv_it) {
+            enqueue_vertex(mesh,vv_it.handle());
+        }
+        
+        nv--;
+    }
 
 
 
