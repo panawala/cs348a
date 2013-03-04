@@ -2,7 +2,9 @@
 #include <iostream>
 #include <set>
 #include <float.h>
+#include <Eigen/Core>
 using namespace OpenMesh;
+using namespace Eigen;
 
 VPropHandleT<Quadricd> vquadric;
 VPropHandleT<float> vprio;
@@ -75,9 +77,9 @@ void initDecimation(Mesh &mesh) {
 	mesh.update_face_normals();
 
 	Mesh::VertexIter v_it, v_end = mesh.vertices_end();
-	Mesh::Point n;
+	Mesh::Point point;
 	Mesh::VertexFaceIter vf_it;          // To iterate through incident faces
-	double a, b, c, d, length;
+	double a, b, c, d, length; 
 	Mesh::Scalar sum;
 
 	for (v_it = mesh.vertices_begin(); v_it != v_end; ++v_it) {
@@ -86,7 +88,18 @@ void initDecimation(Mesh &mesh) {
 		sum = 0;                            // Reset for each iteration
 
         // INSERT CODE HERE FOR PART 1-------------------------------------------------------------------------------
-		// calc vertex quadrics from incident triangles
+        // calc vertex quadrics from incident triangles
+        point =  mesh.point(v_it.handle());
+        Vector3d vertex(point[0],point[1],point[2]);
+		for (vf_it=mesh.vf_iter(v_it); vf_it; ++vf_it) {
+            Vec3f normal = mesh.normal(vf_it.handle()).normalized();
+            a = normal[0];
+            b = normal[1];
+            c = normal[2];
+            Vector3d faceNormal(a,b,c);
+            d = -vertex.dot(faceNormal);
+            quadric(mesh, v_it) += Quadricd(a,b,c,d);
+        }
 		// ----------------------------------------------------------------------------------------------------------
 	}
     std::cout << "Finished init" << std::endl;
@@ -148,7 +161,18 @@ float priority(Mesh &mesh, Mesh::HalfedgeHandle _heh) {
 	// use quadrics to estimate approximation error
 	// -------------------------------------------------------------------------------------------------------------
     
-   return 1.0;
+    VertexHandle endVH = mesh.to_vertex_handle(_heh);
+    VertexHandle startVH = mesh.from_vertex_handle(_heh);
+    
+    Quadricd Q = quadric(mesh,startVH);
+    Q += quadric(mesh,endVH);
+    
+    Vec3f endPoint = mesh.point(endVH);
+//    Vec3f startPoint = mesh.point(startVH);
+            
+    float error = Q(endPoint);
+    
+    return error;
 }
 
 void enqueue_vertex(Mesh &mesh, Mesh::VertexHandle _vh) {
