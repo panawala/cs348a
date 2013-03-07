@@ -2,6 +2,7 @@
 #include <Eigen/Eigenvalues>
 #include <iostream>
 #include "curvature.h"
+#include "utils.h"
 using namespace OpenMesh;
 using namespace Eigen;
 using namespace std;
@@ -97,9 +98,34 @@ void computeCurvature(Mesh &mesh, OpenMesh::VPropHandleT<CurvatureInfo> &curvatu
 void computeViewCurvature(Mesh &mesh, OpenMesh::Vec3f camPos, OpenMesh::VPropHandleT<CurvatureInfo> &curvature, OpenMesh::VPropHandleT<double> &viewCurvature, OpenMesh::FPropHandleT<OpenMesh::Vec3f> &viewCurvatureDerivative) {
 	// WRITE CODE HERE TO COMPUTE CURVATURE IN THE VIEW PROJECTION PROJECTED ON THE TANGENT PLANE ------------------
 	// Compute vector to viewer and project onto tangent plane, then use components in principal directions to find curvature
-	// -------------------------------------------------------------------------------------------------------------
+	
+    for (Mesh::VertexIter it = mesh.vertices_begin(); it != mesh.vertices_end(); ++it) {
+        Vec3f normal = mesh.normal(it.handle());
+		Vector3d currentNormal(normal[0],normal[1],normal[2]);
+		Matrix3d projectionMatrix = Matrix3d::Identity() - currentNormal*currentNormal.transpose();
+        Vec3f vertex = mesh.point(it.handle());
+        Vector3d viewRay(vertex[0]-camPos[0],vertex[1]-camPos[1],vertex[2]-camPos[2]);
+        
+        //Calculate viewing ray's projection onto the vertex tangent plane
+        Vector3d projectedRay = (projectionMatrix*viewRay).normalized();
+    
+        //Calculate viewing curvature
+        double k1 = mesh.property(curvature,it).curvatures[0];
+        double k2 = mesh.property(curvature,it).curvatures[1];
+        Vec3f pD1 = mesh.property(curvature,it).directions[0];
+        Vec3f pD2 = mesh.property(curvature,it).directions[1];
+        Vector3d principalDirection1(pD1[0],pD1[1],pD1[2]);
+        Vector3d principalDirection2(pD2[0],pD2[1],pD2[2]);
+        
+        double viewCurvature = k1*principalDirection1.dot(viewRay) + k2*principalDirection2.dot(viewRay);
+        
+    }
+    
+    // -------------------------------------------------------------------------------------------------------------
 
-	// We'll use the finite elements piecewise hat method to find per-face gradients of the view curvature
+	
+    
+    // We'll use the finite elements piecewise hat method to find per-face gradients of the view curvature
 	// CS 348a doesn't cover how to differentiate functions on a mesh (Take CS 468! Spring 2013!) so we provide code here
 	
 	for (Mesh::FaceIter it = mesh.faces_begin(); it != mesh.faces_end(); ++it) {

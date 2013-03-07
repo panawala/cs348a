@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2345F1E716E82ADF00971554 /* utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2345F1E516E82ADF00971554 /* utils.cpp */; };
 		235B497F16E136BE00CD58C3 /* Final_Project.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 235B497E16E136BE00CD58C3 /* Final_Project.1 */; };
 		235B498A16E136F400CD58C3 /* curvature.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235B498516E136F400CD58C3 /* curvature.cpp */; };
 		235B498B16E136F400CD58C3 /* decimate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235B498616E136F400CD58C3 /* decimate.cpp */; };
@@ -33,6 +34,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		2345F1E516E82ADF00971554 /* utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = utils.cpp; path = ../utils.cpp; sourceTree = "<group>"; };
+		2345F1E616E82ADF00971554 /* utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = utils.h; path = ../utils.h; sourceTree = "<group>"; };
 		235B497816E136BE00CD58C3 /* Final Project */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Final Project"; sourceTree = BUILT_PRODUCTS_DIR; };
 		235B497E16E136BE00CD58C3 /* Final_Project.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Final_Project.1; sourceTree = "<group>"; };
 		235B498516E136F400CD58C3 /* curvature.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = curvature.cpp; path = ../../src/curvature.cpp; sourceTree = "<group>"; };
@@ -86,11 +89,13 @@
 		235B497B16E136BE00CD58C3 /* Final Project */ = {
 			isa = PBXGroup;
 			children = (
+				2345F1E616E82ADF00971554 /* utils.h */,
 				235B498F16E1373200CD58C3 /* curvature.h */,
 				235B499016E1373200CD58C3 /* decimate.h */,
 				235B499116E1373200CD58C3 /* image_generation.h */,
 				235B499216E1373200CD58C3 /* mesh_definitions.h */,
 				235B499316E1373200CD58C3 /* mesh_features.h */,
+				2345F1E516E82ADF00971554 /* utils.cpp */,
 				235B498516E136F400CD58C3 /* curvature.cpp */,
 				235B498616E136F400CD58C3 /* decimate.cpp */,
 				235B498716E136F400CD58C3 /* image_generation.cpp */,
@@ -168,6 +173,7 @@
 				235B498C16E136F400CD58C3 /* image_generation.cpp in Sources */,
 				235B498D16E136F400CD58C3 /* main.cpp in Sources */,
 				235B498E16E136F400CD58C3 /* mesh_features.cpp in Sources */,
+				2345F1E716E82ADF00971554 /* utils.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

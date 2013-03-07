@@ -242,9 +242,13 @@ void decimate(Mesh &mesh, unsigned int _n_vertices) {
             }
         }
         
+        //update information of the to vertex
+        to = mesh.to_vertex_handle(hh);
+        quadric(mesh,to) += quadric(mesh,from);
+        
         //once we find it, we collapse it and update the queue
         mesh.collapse(hh);
-        to = mesh.to_vertex_handle(hh);
+        enqueue_vertex(mesh,to);
         for (vv_it = mesh.vv_iter(to); vv_it; ++vv_it) {
             enqueue_vertex(mesh,vv_it.handle());
         }
