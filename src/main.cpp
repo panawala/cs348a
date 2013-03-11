@@ -10,6 +10,7 @@
 #include "mesh_features.h"
 #include "image_generation.h"
 #include "decimate.h"
+#include "punch.h"
 using namespace std;
 using namespace OpenMesh;
 using namespace Eigen;
@@ -29,10 +30,70 @@ bool showSurface = true, showAxes = true, showCurvature = false, showNormals = f
 float specular[] = { 1.0, 1.0, 1.0, 1.0 };
 float shininess[] = { 50.0 };
 
-void renderSuggestiveContours(Vec3f actualCamPos) { // use this camera position to account for panning etc.
+float derivativeThreshold = 2000;
+float angleCosineThreshold = 0.3;
+
+void renderSuggestiveContours(Vec3f camPos) { // use this camera position to account for panning etc.
 	glColor3f(.5,.5,.5);
 	
 	// RENDER SUGGESTIVE CONTOURS HERE -----------------------------------------------------------------------------
+    
+    for (Mesh::ConstFaceIter it= mesh.faces_begin(); it != mesh.faces_end(); ++it){
+		
+        Vec3f derivative = mesh.property(viewCurvatureDerivative, it);
+        Vector3d derivativeVector(derivative[0],derivative[1],derivative[2]);
+        
+        //getting the three vertices of the face and their curvature
+        Mesh::FaceVertexIter fvit = mesh.fv_iter(it);
+        float kw1 = mesh.property(viewCurvature, fvit);
+        Vec3f vertex1 = mesh.point(fvit.handle());
+        float kw2 = mesh.property(viewCurvature, ++fvit);
+        Vec3f vertex2 = mesh.point(fvit.handle());
+        float kw3 = mesh.property(viewCurvature, ++fvit);
+        Vec3f vertex3 = mesh.point(fvit.handle());
+        
+        Vector3d viewRay(vertex1[0]-camPos[0],vertex1[1]-camPos[1],vertex1[2]-camPos[2]);
+        viewRay = viewRay.normalized();
+        
+        //check if derivative is not too small
+        if (derivativeVector.dot(viewRay) > derivativeThreshold) {
+            Vec3f normal = mesh.normal(it.handle());
+            Vector3d surfaceNormal(normal[0],normal[1],normal[2]);
+            
+            //check if angle between surface normal and view vector not too small
+            float cosine = surfaceNormal.dot(viewRay);
+            if (abs(cosine) < 1 - angleCosineThreshold) {
+                
+                //check if the curvatures have different signs
+                std::vector<Vec3f> contourEdges;
+                if (kw1*kw2 < 0) {
+                    Vec3f pointWithZeroCurvature = (vertex1 * kw2 - vertex2 * kw1) / (kw2 - kw1);
+                    contourEdges.push_back(pointWithZeroCurvature);
+                }
+                
+                if (kw1*kw3 < 0) {
+                    Vec3f pointWithZeroCurvature = (vertex1 * kw3 - vertex3 * kw1) / (kw3 - kw1);
+                    contourEdges.push_back(pointWithZeroCurvature);
+                }
+                
+                if (kw2*kw3 < 0) {
+                    Vec3f pointWithZeroCurvature = (vertex2 * kw3 - vertex3 * kw2) / (kw3 - kw2);
+                    contourEdges.push_back(pointWithZeroCurvature);
+                }
+                
+                //render edges
+                if (contourEdges.size() == 2) {
+                    glBegin(GL_LINES);
+                    glVertex3f(contourEdges[0][0],contourEdges[0][1],contourEdges[0][2]);
+                    glVertex3f(contourEdges[1][0],contourEdges[1][1],contourEdges[1][2]);
+                    glEnd();
+                }
+                
+            }
+        }
+		
+    }
+    
 	// -------------------------------------------------------------------------------------------------------------
 }
 
@@ -141,6 +202,31 @@ void renderMesh() {
 	glDepthRange(0,1);
 }
 
+Vec3f clickPoint(int xClick, int yClick){
+    
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    
+    GLdouble modelview[16];
+    glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+    
+    GLdouble projection[16];
+    glGetDoublev(GL_PROJECTION_MATRIX, projection);
+    
+    GLfloat winX, winY, winZ;
+    winX = (float)xClick;
+    winY = (float)viewport[3] - (float)yClick;
+    
+    glReadPixels(winX,winY,1,1,GL_DEPTH_COMPONENT,GL_FLOAT, &winZ);
+    
+    GLdouble posX, posY, posZ;
+    
+    gluUnProject(winX,winY,winZ,modelview, projection, viewport, &posX, &posY, &posZ);
+    
+    return Vec3f(posX,posY,posZ); //Return the clicked point in the model space
+    
+}
+
 void display() {
 	glClearColor(1,1,1,1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -185,7 +271,19 @@ void display() {
 }
 
 void mouse(int button, int state, int x, int y) {
-	if (button == GLUT_LEFT_BUTTON) leftDown = (state == GLUT_DOWN);
+	if (button == GLUT_LEFT_BUTTON) {
+        leftDown = (state == GLUT_DOWN);
+        if (state == GLUT_DOWN) {
+            Vec3f clickedPoint = clickPoint(x,y);
+            Vec3f actualCamPos(cameraPos[0]+pan[0],cameraPos[1]+pan[1],cameraPos[2]+pan[2]);
+            
+            if (clickedPoint.length() < 2) {
+                deformMesh(mesh, clickedPoint, actualCamPos);
+                cout << "Point clicked is:" << clickedPoint[0] << " " << clickedPoint[1] << " " << clickedPoint[2] << endl;                
+                glutPostRedisplay();
+            }
+        }
+    }
 	else if (button == GLUT_RIGHT_BUTTON) rightDown = (state == GLUT_DOWN);
 	else if (button == GLUT_MIDDLE_BUTTON) middleDown = (state == GLUT_DOWN);
 	
@@ -235,6 +333,22 @@ void keyboard(unsigned char key, int x, int y) {
     else if (key == 'e' || key == 'E') showEdges = !showEdges;
 	else if (key == 'w' || key == 'W') writeImage(mesh, windowWidth, windowHeight, "renderedImage.svg", actualCamPos);
 	else if (key == 'q' || key == 'Q') exit(0);
+    else if (key == 'o' || key == 'O') {
+        derivativeThreshold -= 10;
+        cout << "Derivative Threshold = " << derivativeThreshold << endl;
+        }
+    else if (key == 'p' || key == 'P') {
+        derivativeThreshold += 10;
+        cout << "Derivative Threshold = " << derivativeThreshold << endl;
+        }
+    else if (key == 'k' || key == 'K') {
+        angleCosineThreshold -= 0.01;
+        cout << "Angle Cosine Threshold = " << angleCosineThreshold << endl;
+        }
+    else if (key == 'l' || key == 'L') {
+        angleCosineThreshold += 0.01;
+        cout << "Angle Cosine Threshold = " << angleCosineThreshold << endl;
+        }
 	glutPostRedisplay();
 }
 
@@ -268,7 +382,7 @@ int main(int argc, char** argv) {
 	cout << '\t' << mesh.n_edges() << " edges.\n";
 	cout << '\t' << mesh.n_faces() << " faces.\n";
 	
-	simplify(mesh,.5f);
+	simplify(mesh,1.0f);
 	
 	mesh.update_normals();
 	

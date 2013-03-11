@@ -18,6 +18,7 @@
 		235B499716E138AA00CD58C3 /* GLUT.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 235B499616E138AA00CD58C3 /* GLUT.framework */; };
 		235B4BBB16E42A5800CD58C3 /* libOpenMeshCored.2.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 235B4BBA16E42A5800CD58C3 /* libOpenMeshCored.2.3.dylib */; };
 		235B4BBD16E42A6200CD58C3 /* libOpenMeshToolsd.2.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 235B4BBC16E42A6200CD58C3 /* libOpenMeshToolsd.2.3.dylib */; };
+		23C2674A16ED66BE00FEAF40 /* punch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C2674816ED66BE00FEAF40 /* punch.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -52,6 +53,8 @@
 		235B499616E138AA00CD58C3 /* GLUT.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLUT.framework; path = System/Library/Frameworks/GLUT.framework; sourceTree = SDKROOT; };
 		235B4BBA16E42A5800CD58C3 /* libOpenMeshCored.2.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libOpenMeshCored.2.3.dylib; path = /usr/local/lib/OpenMesh/libOpenMeshCored.2.3.dylib; sourceTree = "<absolute>"; };
 		235B4BBC16E42A6200CD58C3 /* libOpenMeshToolsd.2.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libOpenMeshToolsd.2.3.dylib; path = /usr/local/lib/OpenMesh/libOpenMeshToolsd.2.3.dylib; sourceTree = "<absolute>"; };
+		23C2674816ED66BE00FEAF40 /* punch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = punch.cpp; path = ../../src/punch.cpp; sourceTree = "<group>"; };
+		23C2674916ED66BE00FEAF40 /* punch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = punch.h; path = ../../include/punch.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,7 +104,9 @@
 				235B498716E136F400CD58C3 /* image_generation.cpp */,
 				235B498816E136F400CD58C3 /* main.cpp */,
 				235B498916E136F400CD58C3 /* mesh_features.cpp */,
+				23C2674816ED66BE00FEAF40 /* punch.cpp */,
 				235B497E16E136BE00CD58C3 /* Final_Project.1 */,
+				23C2674916ED66BE00FEAF40 /* punch.h */,
 			);
 			path = "Final Project";
 			sourceTree = "<group>";
@@ -174,6 +179,7 @@
 				235B498D16E136F400CD58C3 /* main.cpp in Sources */,
 				235B498E16E136F400CD58C3 /* mesh_features.cpp in Sources */,
 				2345F1E716E82ADF00971554 /* utils.cpp in Sources */,
+				23C2674A16ED66BE00FEAF40 /* punch.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

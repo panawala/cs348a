@@ -5,13 +5,16 @@ CPPFLAGS = -O3 -fPIC -DEIGEN_PERMANENTLY_DISABLE_STUPID_WARNINGS -DEIGEN_YES_I_K
 LDFLAGS = -O3 -framework OpenGL -framework GLUT
 LIB = -lOpenMeshCored -lOpenMeshToolsd -Wl,-rpath,$(OPENMESH_LIB_DIR)
 TARGET = drawMesh
-OBJS = objs/main.o objs/curvature.o objs/mesh_features.o objs/image_generation.o objs/decimate.o
+OBJS = objs/main.o objs/curvature.o objs/mesh_features.o objs/image_generation.o objs/decimate.o objs/punch.o
 
 default: $(OBJS)
 	$(LD) $(OBJS) $(LDFLAGS) -L$(OPENMESH_LIB_DIR) $(LIB) -o $(TARGET)
 	
 objs/main.o: src/main.cpp
 	$(CPP) -c $(CPPFLAGS) src/main.cpp -o objs/main.o $(INCLUDE)
+
+objs/punch.o: src/main.cpp
+	$(CPP) -c $(CPPFLAGS) src/punch.cpp -o objs/punch.o $(INCLUDE)
 
 objs/curvature.o: src/curvature.cpp
 	$(CPP) -c $(CPPFLAGS) src/curvature.cpp -o objs/curvature.o $(INCLUDE)

@@ -85,8 +85,10 @@ void computeCurvature(Mesh &mesh, OpenMesh::VPropHandleT<CurvatureInfo> &curvatu
         
 		// In the end you need to fill in this struct
 		CurvatureInfo info;
-		info.curvatures[0] = k1;
-		info.curvatures[1] = k2;
+        
+        //multiply curvatures by -1 after testing with the sphere
+		info.curvatures[0] = -k1;
+		info.curvatures[1] = -k2;
 		info.directions[0] = Vec3f(principalDirection1[0],principalDirection1[1],principalDirection1[2]);
 		info.directions[1] = Vec3f(principalDirection2[0],principalDirection2[1],principalDirection2[2]);
         
@@ -117,8 +119,9 @@ void computeViewCurvature(Mesh &mesh, OpenMesh::Vec3f camPos, OpenMesh::VPropHan
         Vector3d principalDirection1(pD1[0],pD1[1],pD1[2]);
         Vector3d principalDirection2(pD2[0],pD2[1],pD2[2]);
         
-        double viewCurvature = k1*principalDirection1.dot(viewRay) + k2*principalDirection2.dot(viewRay);
+        double viewCurvatureDouble = k1*principalDirection1.dot(viewRay) + k2*principalDirection2.dot(viewRay);
         
+        mesh.property(viewCurvature,it) = viewCurvatureDouble;
     }
     
     // -------------------------------------------------------------------------------------------------------------
