@@ -13,7 +13,7 @@ default: $(OBJS)
 objs/main.o: src/main.cpp
 	$(CPP) -c $(CPPFLAGS) src/main.cpp -o objs/main.o $(INCLUDE)
 
-objs/punch.o: src/main.cpp
+objs/punch.o: src/punch.cpp
 	$(CPP) -c $(CPPFLAGS) src/punch.cpp -o objs/punch.o $(INCLUDE)
 
 objs/curvature.o: src/curvature.cpp

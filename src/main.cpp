@@ -52,7 +52,9 @@ void renderSuggestiveContours(Vec3f camPos) { // use this camera position to acc
         float kw3 = mesh.property(viewCurvature, ++fvit);
         Vec3f vertex3 = mesh.point(fvit.handle());
         
-        Vector3d viewRay(vertex1[0]-camPos[0],vertex1[1]-camPos[1],vertex1[2]-camPos[2]);
+        Vec3f faceCentroid = vertex1 + vertex2 + vertex3;
+        faceCentroid = ((float)1.0/3)*faceCentroid;
+        Vector3d viewRay(faceCentroid[0]-camPos[0],faceCentroid[1]-camPos[1],faceCentroid[2]-camPos[2]);
         viewRay = viewRay.normalized();
         
         //check if derivative is not too small
@@ -279,7 +281,7 @@ void mouse(int button, int state, int x, int y) {
             
             if (clickedPoint.length() < 2) {
                 deformMesh(mesh, clickedPoint, actualCamPos);
-                cout << "Point clicked is:" << clickedPoint[0] << " " << clickedPoint[1] << " " << clickedPoint[2] << endl;                
+                computeCurvature(mesh,curvature);
                 glutPostRedisplay();
             }
         }

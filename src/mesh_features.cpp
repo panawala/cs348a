@@ -19,8 +19,7 @@ bool isSilhouette(Mesh &mesh, const Mesh::EdgeHandle &e, Vec3f cameraPos)  {
     return dot0*dot1 <= 0;
     
 	// -------------------------------------------------------------------------------------------------------------
-    return false;
-}
+    }
 
 bool isSharpEdge(Mesh &mesh, const Mesh::EdgeHandle &e) {
 	// CHECK IF e IS SHARP HERE ------------------------------------------------------------------------------------
@@ -34,6 +33,7 @@ bool isSharpEdge(Mesh &mesh, const Mesh::EdgeHandle &e) {
     float dot = normal0[0]*normal1[0] + normal0[1]*normal1[1] + normal0[2]*normal1[2];
     
     return dot <= .5;
+    
 }
 
 bool isFeatureEdge(Mesh &mesh, const Mesh::EdgeHandle &e, Vec3f cameraPos) {
